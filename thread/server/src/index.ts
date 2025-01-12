@@ -13,13 +13,16 @@ async function main() {
     const typeDefs = `
         type Query {
             hello: String
+            say(name: String) : String
         }
+
     `;
 
     // Define resolvers
     const resolvers = {
         Query: {
             hello: () => 'Hello, world!',
+            say: (_, { name }: { name: string }) => `Hey ${name}!`,
         },
     };
 
