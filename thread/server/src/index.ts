@@ -1,6 +1,8 @@
 import express from 'express'
 import { ApolloServer } from '@apollo/server'
 import { expressMiddleware } from '@apollo/server/express4'
+import  prisma  from './lib/db';
+
 
 
 async function main() {
@@ -16,14 +18,39 @@ async function main() {
             say(name: String) : String
         }
 
+        type Mutation {
+            createUser(email: String!,firstName: String!,lastName: String!,password: String!):Boolean
+        }
+
     `;
 
     // Define resolvers
     const resolvers = {
         Query: {
             hello: () => 'Hello, world!',
-            say: (_, { name }: { name: string }) => `Hey ${name}!`,
+            say: (_:any, { name }: { name: string }) => `Hey ${name}!`,
         },
+        Mutation: {
+            createUser: async (_:any, { email, firstName, lastName, password }: {
+                email: string, firstName: string, lastName: string, password: string
+            }) => {
+
+                const data = await prisma.user.create({
+                    data: {
+                        email,
+                        firstName,
+                        lastName,
+                        password,
+                        salt: 'salt'
+                    }
+                })
+
+            
+
+                return true;
+
+            }
+        }
     };
 
 
@@ -41,6 +68,7 @@ async function main() {
     })
 
 
+    //@ts-ignore
     app.use('/graphql', expressMiddleware(server))
 
     app.listen(PORT, () => {
