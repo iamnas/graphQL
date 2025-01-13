@@ -1,6 +1,7 @@
 import express from 'express'
 import { expressMiddleware } from '@apollo/server/express4'
 import createApolloGraphqlServer from './graphql';
+import UserService from './service/user';
 
 
 async function main() {
@@ -15,7 +16,22 @@ async function main() {
     })
 
     // @ts-expect-error
-    app.use('/graphql', expressMiddleware(await createApolloGraphqlServer()))
+    app.use('/graphql', expressMiddleware(await createApolloGraphqlServer(), {
+        context: async ({ req }) => {
+            const token: string | undefined = req.headers['authorization']
+
+            try {
+                if (!token) {
+                    throw new Error(`No authorization header token provided`)
+                }
+
+                const user = UserService.decodeJWTToken(token)
+                return { user };
+            } catch (error) {
+                return {}
+            }
+        }
+    }))
 
     app.listen(PORT, () => {
         console.log(`Server is running on port http://localhost:${PORT}`);

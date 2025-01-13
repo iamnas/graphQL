@@ -33,16 +33,22 @@ class UserService {
         const { email, password } = payload;
         const userData = await UserService.getUserByEmail(email)
         if (!userData) throw new Error('user now found');
-        const usersHashPassword = this.generateHash(password, userData.salt); 
+        const usersHashPassword = this.generateHash(password, userData.salt);
         if (usersHashPassword !== userData.password) throw new Error('Invalid password');
-
-        
 
         // Gen Token
         const token = JWT.sign({ id: userData.id, email: userData.email }, JWT_SECRET)
         return token;
+    }
 
+    public static decodeJWTToken(token: string) {
+        return JWT.verify(token, JWT_SECRET);
+    }
 
+    public static getUserById(id: string) {
+        return prisma.user.findUnique({
+            where: { id },
+        })
     }
 
     private static getUserByEmail(email: string) {

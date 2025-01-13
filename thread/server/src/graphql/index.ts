@@ -4,6 +4,8 @@ import { User } from './user'
 
 export default async function createApolloGraphqlServer() {
     const typeDefs = `
+            ${User.typeDefs}
+            
             type Query {
                 ${User.queries}
             }
