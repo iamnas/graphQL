@@ -5,7 +5,7 @@ import { User } from './user'
 export default async function createApolloGraphqlServer() {
     const typeDefs = `
             type Query {
-                hello: String
+                ${User.queries}
             }
             type Mutation {
             ${User.mutations}
